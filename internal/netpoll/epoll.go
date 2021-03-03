@@ -30,8 +30,8 @@ import (
 	"unsafe"
 
 	"github.com/Esbiya/gnet/errors"
-	"github.com/Esbiya/gnet/internal/logging"
 	"github.com/Esbiya/gnet/internal/netpoll/queue"
+	"github.com/Esbiya/loguru"
 	"golang.org/x/sys/unix"
 )
 
@@ -106,7 +106,7 @@ func (p *Poller) Polling(callback func(fd int, ev uint32) error) error {
 			runtime.Gosched()
 			continue
 		} else if err != nil {
-			logging.DefaultLogger.Warnf("Error occurs in epoll: %v", os.NewSyscallError("epoll_wait", err))
+			loguru.Warning("Error occurs in epoll: %v", os.NewSyscallError("epoll_wait", err))
 			return err
 		}
 		msec = 0
@@ -118,7 +118,7 @@ func (p *Poller) Polling(callback func(fd int, ev uint32) error) error {
 				case errors.ErrAcceptSocket, errors.ErrServerShutdown:
 					return err
 				default:
-					logging.DefaultLogger.Warnf("Error occurs in event-loop: %v", err)
+					loguru.Warning("Error occurs in event-loop: %v", err)
 				}
 			} else {
 				wakenUp = true
@@ -138,7 +138,7 @@ func (p *Poller) Polling(callback func(fd int, ev uint32) error) error {
 				case errors.ErrServerShutdown:
 					return err
 				default:
-					logging.DefaultLogger.Warnf("Error occurs in user-defined function, %v", err)
+					loguru.Warning("Error occurs in user-defined function, %v", err)
 				}
 			}
 			atomic.StoreInt32(&p.netpollWakeSig, 0)

@@ -3,8 +3,6 @@ package guds
 import (
 	"bytes"
 	"encoding/binary"
-	"encoding/json"
-	"github.com/tidwall/gjson"
 )
 
 // 大端序字节转 int
@@ -32,24 +30,4 @@ func MergeBytes(b1 []byte, b2 ...[]byte) []byte {
 		buffer.Write(b)
 	}
 	return buffer.Bytes()
-}
-
-func Map2Data(m interface{}) Data {
-	var b []byte
-	switch m.(type) {
-	case map[string]interface{}:
-		b, _ = json.Marshal(m.(map[string]interface{}))
-	case string:
-		b = []byte(m.(string))
-	case []byte:
-		b = m.([]byte)
-	case int:
-		b = IntToBytes(m.(int))
-	}
-	return Data{gjson.ParseBytes(b)}
-}
-
-func JSON2Bytes(d map[string]interface{}) []byte {
-	b, _ := json.Marshal(d)
-	return b
 }

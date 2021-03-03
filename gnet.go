@@ -23,6 +23,7 @@ package gnet
 
 import (
 	"context"
+	"github.com/Esbiya/loguru"
 	"net"
 	"runtime"
 	"strings"
@@ -91,7 +92,7 @@ func (s Server) CountConnections() (count int) {
 func (s Server) DupFd() (dupFD int, err error) {
 	dupFD, sc, err := s.svr.ln.Dup()
 	if err != nil {
-		logging.DefaultLogger.Warnf("%s failed when duplicating new fd\n", sc)
+		loguru.Warning("%s failed when duplicating new fd", sc)
 	}
 	return
 }
@@ -266,8 +267,8 @@ func Serve(eventHandler EventHandler, protoAddr string, opts ...Option) (err err
 	// The maximum number of operating system threads that the Go program can use is initially set to 10000,
 	// which should be the maximum amount of I/O event-loops locked to OS threads users can start up.
 	if options.LockOSThread && options.NumEventLoop > 10000 {
-		logging.DefaultLogger.Errorf("too many event-loops under LockOSThread mode, should be less than 10,000 "+
-			"while you are trying to set up %d\n", options.NumEventLoop)
+		loguru.Error("too many event-loops under LockOSThread mode, should be less than 10,000 "+
+			"while you are trying to set up %d", options.NumEventLoop)
 		return errors.ErrTooManyEventLoopThreads
 	}
 

@@ -25,19 +25,19 @@ type (
 )
 
 func NewMessage(api string, data interface{}) *Message {
-	b, _ := json.Marshal(data)
-	return &Message{
-		length: len(b),
-		bytes:  b,
-		Api:    api,
-		Data:   data,
+	m := &Message{
+		Api:  api,
+		Data: data,
 	}
+	m.bytes = m.Bytes()
+	m.length = len(m.bytes)
+	return m
 }
 
 func (m *Message) reset(async bool, data interface{}) {
 	m.async = async
 	m.Data = data
-	m.bytes, _ = json.Marshal(data)
+	m.bytes = m.Bytes()
 	m.length = len(m.bytes)
 }
 
@@ -61,15 +61,20 @@ func (m *Message) Parse(b []byte) error {
 }
 
 func (m *Message) Bytes() []byte {
-	return m.bytes
+	b, _ := json.Marshal(m)
+	return b
 }
 
 func (m *Message) Stringify() string {
-	return string(m.Bytes())
+	return string(m.bytes)
 }
 
 func (m *Message) GJson() gjson.Result {
-	return gjson.ParseBytes(m.Bytes())
+	return gjson.ParseBytes(m.bytes)
+}
+
+func (m *Message) ToData() Data {
+	return Data{m.GJson()}
 }
 
 func (m *Message) Length() int {

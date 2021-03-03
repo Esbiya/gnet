@@ -24,13 +24,14 @@
 package gnet
 
 import (
+	"errors"
 	"net"
 	"os"
 
 	"github.com/Esbiya/gnet/internal/netpoll"
 	"github.com/Esbiya/gnet/pool/bytebuffer"
-	prb "github.com/panjf2000/gnet/pool/ringbuffer"
-	"github.com/panjf2000/gnet/ringbuffer"
+	prb "github.com/Esbiya/gnet/pool/ringbuffer"
+	"github.com/Esbiya/gnet/ringbuffer"
 	"golang.org/x/sys/unix"
 )
 
@@ -130,6 +131,9 @@ func (c *conn) write(buf []byte) (err error) {
 	}
 	// If there is pending data in outbound buffer, the current data ought to be appended to the outbound buffer
 	// for maintaining the sequence of network packets.
+	if c.outboundBuffer == nil {
+		return errors.New("client conn already close! ")
+	}
 	if !c.outboundBuffer.IsEmpty() {
 		_, _ = c.outboundBuffer.Write(outFrame)
 		return

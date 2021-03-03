@@ -24,12 +24,12 @@
 package netpoll
 
 import (
+	"github.com/Esbiya/loguru"
 	"os"
 	"runtime"
 	"sync/atomic"
 
 	"github.com/Esbiya/gnet/errors"
-	"github.com/Esbiya/gnet/internal/logging"
 	"github.com/Esbiya/gnet/internal/netpoll/queue"
 	"golang.org/x/sys/unix"
 )
@@ -100,7 +100,7 @@ func (p *Poller) Polling(callback func(fd int, filter int16) error) error {
 			runtime.Gosched()
 			continue
 		} else if err != nil {
-			logging.DefaultLogger.Warnf("Error occurs in kqueue: %v", os.NewSyscallError("kevent wait", err))
+			loguru.Warning("error occurs in kqueue: %v", os.NewSyscallError("kevent wait", err))
 			return err
 		}
 		tsp = &ts
@@ -117,7 +117,7 @@ func (p *Poller) Polling(callback func(fd int, filter int16) error) error {
 				case errors.ErrAcceptSocket, errors.ErrServerShutdown:
 					return err
 				default:
-					logging.DefaultLogger.Warnf("Error occurs in event-loop: %v", err)
+					loguru.Error("error occurs in event-loop: %v", err)
 				}
 			} else {
 				wakenUp = true
@@ -136,7 +136,7 @@ func (p *Poller) Polling(callback func(fd int, filter int16) error) error {
 				case errors.ErrServerShutdown:
 					return err
 				default:
-					logging.DefaultLogger.Warnf("Error occurs in user-defined function, %v", err)
+					loguru.Warning("Error occurs in user-defined function, %v", err)
 				}
 			}
 			atomic.StoreInt32(&p.netpollWakeSig, 0)

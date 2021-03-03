@@ -26,6 +26,7 @@ package gnet
 import (
 	"errors"
 	"fmt"
+	"github.com/Esbiya/loguru"
 	"github.com/panjf2000/gnet/pool/goroutine"
 	"os"
 	"runtime"
@@ -78,7 +79,7 @@ func (el *eventloop) loopRun(lockOSThread bool) {
 	}()
 
 	err := el.poller.Polling(el.handleEvent)
-	el.svr.logger.Infof("Event-loop(%d) is exiting due to error: %v", el.idx, err)
+	loguru.Info("Event-loop(%d) is exiting due to error: %v", el.idx, err)
 }
 
 func (el *eventloop) loopAccept(fd int) error {
@@ -307,7 +308,7 @@ func (el *eventloop) loopTicker() {
 			return
 		})
 		if err != nil {
-			el.svr.logger.Errorf("Failed to awake poller in event-loop(%d), error:%v, stopping ticker", el.idx, err)
+			loguru.Error("Failed to awake poller in event-loop(%d), error: %v, stopping ticker", el.idx, err)
 			break
 		}
 		if delay, open = <-el.svr.ticktock; open {

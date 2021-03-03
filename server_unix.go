@@ -25,6 +25,7 @@ package gnet
 
 import (
 	"github.com/Esbiya/gnet/pool/goroutine"
+	"github.com/Esbiya/loguru"
 	"runtime"
 	"sync"
 	"sync/atomic"
@@ -259,7 +260,7 @@ func serve(eventHandler EventHandler, listener *listener, options *Options, prot
 
 	svr.cond = sync.NewCond(&sync.Mutex{})
 	svr.ticktock = make(chan time.Duration, channelBuffer)
-	svr.logger = logging.DefaultLogger
+	// svr.logger = logging.DefaultLogger
 	svr.codec = func() ICodec {
 		if options.Codec == nil {
 			return new(BuiltInFrameCodec)
@@ -283,7 +284,7 @@ func serve(eventHandler EventHandler, listener *listener, options *Options, prot
 
 	if err := svr.start(numEventLoop); err != nil {
 		svr.closeEventLoops()
-		svr.logger.Errorf("gnet server is stopping with error: %v", err)
+		loguru.Error("gnet server is stopping with error: %v", err)
 		return err
 	}
 	defer svr.stop(server)

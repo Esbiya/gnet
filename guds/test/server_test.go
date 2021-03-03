@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"github.com/Esbiya/gnet/guds"
 	"testing"
 	"time"
@@ -14,20 +15,14 @@ func testLogin(qr chan string) bool {
 }
 
 func TestServer(t *testing.T) {
-	server := guds.Default()
+	server := guds.DefaultServer()
 
 	server.Router().Register("session.login", func(msg guds.Data, c chan guds.Reply) {
 		qr := make(chan string, 1)
 		go func() {
 			c <- guds.Reply{
 				Status: guds.Continue,
-				Body: map[string]interface{}{
-					"code": 200,
-					"msg":  "success",
-					"data": map[string]interface{}{
-						"qr": <-qr,
-					},
-				},
+				Body:   fmt.Sprintf(`{"code":200,"msg":"success","data":{"qr":"%s"}}`, <-qr),
 			}
 		}()
 		if testLogin(qr) {

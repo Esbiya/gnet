@@ -55,8 +55,8 @@ func (u *Server) OnInitComplete(srv gnet.Server) (action gnet.Action) {
 func (u *Server) OnOpened(c gnet.Conn) (out []byte, action gnet.Action) {
 	c.SetContext(c)
 	atomic.AddInt32(&u.connected, 1)
-	b := []byte("hello world")
-	out = MergeBytes(IntToBytes(len(b)), b)
+	msg := NewMessage("client.init", "hello world")
+	out = MergeBytes(IntToBytes(msg.length), msg.bytes)
 	if c.LocalAddr() == nil {
 		panic("nil local addr")
 	}
@@ -104,8 +104,6 @@ func (u *Server) RecordLog() {
 }
 
 func (u *Server) React(frame []byte, c gnet.Conn, out chan gnet.Out) {
-	loguru.Debug("receive message length: %d, body: %s", BytesToInt(frame[:4]), string(frame[4:]))
-
 	var msg Message
 	err := msg.Parse(frame[4:])
 
@@ -119,14 +117,15 @@ func (u *Server) React(frame []byte, c gnet.Conn, out chan gnet.Out) {
 			Body: msg.out(),
 		}
 	} else {
+		loguru.Debug("receive message - length: %d, body: %v", msg.length, msg.Data)
 		_ = u.pool.Submit(func() {
-			u.router.Get(msg.Api)(Map2Data(msg.Data), reply)
+			u.router.Get(msg.Api)(msg.ToData(), reply)
 		})
 	LOOP:
 		select {
 		case _reply := <-reply:
 			msg.reset(_reply.Async, _reply.Body)
-			loguru.Debug("out message length: %d, body: %s", msg.length, msg.Stringify())
+			loguru.Debug("reply   message - length: %d, body: %v", msg.length, msg.Data)
 			if msg.async {
 				_ = c.AsyncWrite(msg.out())
 			} else {
@@ -167,6 +166,6 @@ func (u *Server) Run() {
 	_ = gnet.Serve(u, fmt.Sprintf("unix://%s", u.addr), gnet.WithMulticore(u.multicore))
 }
 
-func Default() *Server {
+func DefaultServer() *Server {
 	return NewServer("/tmp/us.socket", true, DefaultAntsPoolSize, ExpiryDuration)
 }
