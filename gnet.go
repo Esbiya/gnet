@@ -46,6 +46,9 @@ const (
 
 	// Shutdown shutdowns the server.
 	Shutdown
+
+	// 表明该条消息并未结束
+	Continue
 )
 
 // Server represents a server context which provides information about the
@@ -146,6 +149,11 @@ type Conn interface {
 }
 
 type (
+	Out struct {
+		Body   []byte
+		Action Action
+	}
+
 	// EventHandler represents the server events' callbacks for the Serve call.
 	// Each event has an Action return value that is used manage the state
 	// of the connection and server.
@@ -177,7 +185,7 @@ type (
 		// React fires when a connection sends the server data.
 		// Call c.Read() or c.ReadN(n) within the parameter:c to read incoming data from client.
 		// Parameter:out is the return value which is going to be sent back to the client.
-		React(frame []byte, c Conn) (out []byte, action Action)
+		React(frame []byte, c Conn, out chan Out)
 
 		// Tick fires immediately after the server starts and will fire again
 		// following the duration specified by the delay return value.

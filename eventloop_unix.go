@@ -26,6 +26,7 @@ package gnet
 import (
 	"errors"
 	"fmt"
+	"github.com/panjf2000/gnet/pool/goroutine"
 	"os"
 	"runtime"
 	"time"
@@ -53,6 +54,7 @@ type internalEventloop struct {
 	connCount         int32                   // number of active connections in event-loop
 	connections       map[int]*conn           // loop connections fd -> conn
 	eventHandler      EventHandler            // user eventHandler
+	workPool          *goroutine.Pool         // 工作协程池
 	calibrateCallback func(*eventloop, int32) // callback func for re-adjusting connCount
 }
 
@@ -151,22 +153,30 @@ func (el *eventloop) loopRead(c *conn) error {
 	c.buffer = el.packet[:n]
 
 	for inFrame, _ := c.read(); inFrame != nil; inFrame, _ = c.read() {
-		out, action := el.eventHandler.React(inFrame, c)
-		if out != nil {
+		ch := make(chan Out)
+		_ = el.workPool.Submit(func() {
+			el.eventHandler.React(inFrame, c, ch)
+		})
+
+	LOOP:
+		select {
+		case out := <-ch:
 			el.eventHandler.PreWrite()
 			// Encode data and try to write it back to the client, this attempt is based on a fact:
 			// a client socket waits for the response data after sending request data to the server,
 			// which makes the client socket writable.
-			if err = c.write(out); err != nil {
+			if err = c.write(out.Body); err != nil {
 				return err
 			}
-		}
-		switch action {
-		case None:
-		case Close:
-			return el.loopCloseConn(c, nil)
-		case Shutdown:
-			return gerrors.ErrServerShutdown
+			switch out.Action {
+			case None:
+			case Close:
+				return el.loopCloseConn(c, nil)
+			case Shutdown:
+				return gerrors.ErrServerShutdown
+			case Continue:
+				goto LOOP
+			}
 		}
 
 		// Check the status of connection every loop since it might be closed during writing data back to client due to
@@ -264,14 +274,19 @@ func (el *eventloop) loopWake(c *conn) error {
 	//if co, ok := el.connections[c.fd]; !ok || co != c {
 	//	return nil // ignore stale wakes.
 	//}
-	out, action := el.eventHandler.React(nil, c)
-	if out != nil {
-		if err := c.write(out); err != nil {
-			return err
+	ch := make(chan Out)
+	_ = el.workPool.Submit(func() {
+		el.eventHandler.React(nil, c, ch)
+	})
+	select {
+	case out := <-ch:
+		if out.Body != nil {
+			if err := c.write(out.Body); err != nil {
+				return err
+			}
 		}
+		return el.handleAction(c, out.Action)
 	}
-
-	return el.handleAction(c, action)
 }
 
 func (el *eventloop) loopTicker() {
@@ -317,7 +332,7 @@ func (el *eventloop) handleAction(c *conn, action Action) error {
 }
 
 func (el *eventloop) loopReadUDP(fd int) error {
-	n, sa, err := unix.Recvfrom(fd, el.packet, 0)
+	_, sa, err := unix.Recvfrom(fd, el.packet, 0)
 	if err != nil {
 		if err == unix.EAGAIN || err == unix.EWOULDBLOCK {
 			return nil
@@ -327,15 +342,26 @@ func (el *eventloop) loopReadUDP(fd int) error {
 	}
 
 	c := newUDPConn(fd, el, sa)
-	out, action := el.eventHandler.React(el.packet[:n], c)
-	if out != nil {
-		el.eventHandler.PreWrite()
-		_ = c.sendTo(out)
+
+	ch := make(chan Out)
+	_ = el.workPool.Submit(func() {
+		el.eventHandler.React(nil, c, ch)
+	})
+LOOP:
+	select {
+	case out := <-ch:
+		if out.Body != nil {
+			el.eventHandler.PreWrite()
+			_ = c.sendTo(out.Body)
+		}
+		switch out.Action {
+		case Shutdown:
+			return gerrors.ErrServerShutdown
+		case Continue:
+			goto LOOP
+		}
+		c.releaseUDP()
 	}
-	if action == Shutdown {
-		return gerrors.ErrServerShutdown
-	}
-	c.releaseUDP()
 
 	return nil
 }

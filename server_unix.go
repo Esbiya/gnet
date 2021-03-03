@@ -24,6 +24,7 @@
 package gnet
 
 import (
+	"github.com/panjf2000/gnet/pool/goroutine"
 	"runtime"
 	"sync"
 	"sync/atomic"
@@ -145,6 +146,7 @@ func (svr *server) activateReactors(numEventLoop int) error {
 			el.ln = svr.ln
 			el.svr = svr
 			el.poller = p
+			el.workPool = goroutine.Default()
 			el.packet = make([]byte, svr.opts.ReadBufferCap)
 			el.connections = make(map[int]*conn)
 			el.eventHandler = svr.eventHandler

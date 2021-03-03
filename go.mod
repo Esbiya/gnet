@@ -3,7 +3,9 @@ module github.com/panjf2000/gnet
 go 1.15
 
 require (
+	github.com/Esbiya/loguru v0.2.5
 	github.com/panjf2000/ants/v2 v2.4.3
+	github.com/tidwall/gjson v1.6.8
 	github.com/valyala/bytebufferpool v1.0.0
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.16.0
