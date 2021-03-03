@@ -9,7 +9,7 @@ import (
 func TestClient(t *testing.T) {
 	c := guds.DefaultClient()
 	c.Start()
-	c.Send("session.login", map[string]interface{}{}).Then(func(b interface{}) {
+	c.Send("session.login", "").Then(func(b interface{}) {
 		loguru.Debug(b)
 	}).Then(func(b interface{}) {
 		loguru.Debug(b)
