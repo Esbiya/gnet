@@ -24,8 +24,8 @@ package gnet
 import (
 	"net"
 
-	"github.com/panjf2000/gnet/pool/bytebuffer"
-	prb "github.com/panjf2000/gnet/pool/ringbuffer"
+	"github.com/Esbiya/gnet/pool/bytebuffer"
+	prb "github.com/Esbiya/gnet/pool/ringbuffer"
 	"github.com/panjf2000/gnet/ringbuffer"
 )
 

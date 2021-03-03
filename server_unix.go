@@ -24,15 +24,15 @@
 package gnet
 
 import (
-	"github.com/panjf2000/gnet/pool/goroutine"
+	"github.com/Esbiya/gnet/pool/goroutine"
 	"runtime"
 	"sync"
 	"sync/atomic"
 	"time"
 
-	"github.com/panjf2000/gnet/errors"
-	"github.com/panjf2000/gnet/internal/logging"
-	"github.com/panjf2000/gnet/internal/netpoll"
+	"github.com/Esbiya/gnet/errors"
+	"github.com/Esbiya/gnet/internal/logging"
+	"github.com/Esbiya/gnet/internal/netpoll"
 )
 
 type server struct {

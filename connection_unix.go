@@ -27,8 +27,8 @@ import (
 	"net"
 	"os"
 
-	"github.com/panjf2000/gnet/internal/netpoll"
-	"github.com/panjf2000/gnet/pool/bytebuffer"
+	"github.com/Esbiya/gnet/internal/netpoll"
+	"github.com/Esbiya/gnet/pool/bytebuffer"
 	prb "github.com/panjf2000/gnet/pool/ringbuffer"
 	"github.com/panjf2000/gnet/ringbuffer"
 	"golang.org/x/sys/unix"

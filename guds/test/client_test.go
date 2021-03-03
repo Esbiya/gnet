@@ -2,8 +2,8 @@ package test
 
 import (
 	"encoding/json"
+	"github.com/Esbiya/gnet/guds"
 	"github.com/Esbiya/loguru"
-	"github.com/panjf2000/gnet/guds"
 	"io"
 	"net"
 	"os"

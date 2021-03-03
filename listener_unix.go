@@ -27,9 +27,9 @@ import (
 	"os"
 	"sync"
 
-	"github.com/panjf2000/gnet/errors"
-	"github.com/panjf2000/gnet/internal/netpoll"
-	"github.com/panjf2000/gnet/internal/reuseport"
+	"github.com/Esbiya/gnet/errors"
+	"github.com/Esbiya/gnet/internal/netpoll"
+	"github.com/Esbiya/gnet/internal/reuseport"
 	"golang.org/x/sys/unix"
 )
 

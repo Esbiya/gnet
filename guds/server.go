@@ -2,9 +2,9 @@ package guds
 
 import (
 	"fmt"
+	"github.com/Esbiya/gnet"
 	"github.com/Esbiya/loguru"
 	"github.com/panjf2000/ants/v2"
-	"github.com/panjf2000/gnet"
 	"os"
 	"sync/atomic"
 	"time"

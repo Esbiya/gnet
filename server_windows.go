@@ -28,8 +28,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	errors2 "github.com/panjf2000/gnet/errors"
-	"github.com/panjf2000/gnet/internal/logging"
+	errors2 "github.com/Esbiya/gnet/errors"
+	"github.com/Esbiya/gnet/internal/logging"
 )
 
 var errCloseAllConns = errors.New("close all connections in event-loop")

@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/panjf2000/gnet/guds"
+	"github.com/Esbiya/gnet/guds"
 	"testing"
 	"time"
 )

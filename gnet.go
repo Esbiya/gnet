@@ -29,9 +29,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/panjf2000/gnet/errors"
-	"github.com/panjf2000/gnet/internal"
-	"github.com/panjf2000/gnet/internal/logging"
+	"github.com/Esbiya/gnet/errors"
+	"github.com/Esbiya/gnet/internal"
+	"github.com/Esbiya/gnet/internal/logging"
 )
 
 // Action is an action that occurs after the completion of an event.
