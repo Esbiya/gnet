@@ -117,7 +117,7 @@ func (u *Server) React(frame []byte, c gnet.Conn, out chan gnet.Out) {
 			Body: msg.out(),
 		}
 	} else {
-		loguru.Debug("receive message - length: %d, body: %s", msg.length, msg.Stringify())
+		loguru.Debug("receive message - length: %d, body: %s", msg.bodyLength, msg.BodyStringify())
 		_ = u.pool.Submit(func() {
 			u.router.Get(msg.Api)(msg.ToData(), reply)
 		})
@@ -125,7 +125,7 @@ func (u *Server) React(frame []byte, c gnet.Conn, out chan gnet.Out) {
 		select {
 		case _reply := <-reply:
 			msg.reset(_reply.Async, _reply.Body)
-			loguru.Debug("reply   message - length: %d, body: %s", msg.length, msg.Stringify())
+			loguru.Debug("reply   message - length: %d, body: %s", msg.bodyLength, msg.BodyStringify())
 			if msg.async {
 				_ = c.AsyncWrite(msg.out())
 			} else {

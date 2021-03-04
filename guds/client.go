@@ -89,7 +89,7 @@ func (c *Client) loopRead() {
 			}
 
 			if v, ok := c.retMap.Load(msg.Api); ok {
-				v.(chan interface{}) <- msg.Data
+				v.(chan interface{}) <- msg.Body
 			}
 		}
 	}()
