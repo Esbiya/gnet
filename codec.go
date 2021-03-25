@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-03-03 09:07:47
+ * @LastEditTime: 2021-03-25 09:08:04
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: /gnet/codec.go
+ */
 // Copyright (c) 2019 Andy Pan
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
