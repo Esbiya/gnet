@@ -171,13 +171,12 @@ func (u *Server) version() {
 	fmt.Println(loguru.Fuchsia(`   _________  _____/ /_____  _____`))
 	fmt.Println(loguru.Fuchsia(`  / ___/ __ \/ ___/ //_/ _ \/ ___/`))
 	fmt.Println(loguru.Fuchsia(` (__  ) /_/ / /__/ ,< /  __/ /`))
-	fmt.Println(loguru.Fuchsia(`/____/\____/\___/_/|_|\___/_/`))
-	fmt.Println(loguru.Fuchsia(fmt.Sprintf("         socker v0.0.6 %s/%s", runtime.GOOS, runtime.GOARCH)))
+	fmt.Println(loguru.Fuchsia(fmt.Sprintf(`/____/\____/\___/_/|_|\___/_/       socker v0.0.6 %s/%s`, runtime.GOOS, runtime.GOARCH)))
 }
 
 func (u *Server) Run() {
 	u.version()
-	_ = gnet.Serve(u, fmt.Sprintf("%s://:%s", u.mode, u.addr), gnet.WithMulticore(u.multicore))
+	_ = gnet.Serve(u, fmt.Sprintf("%s://%s", u.mode, u.addr), gnet.WithMulticore(u.multicore))
 }
 
 func DefaultUDSServer() *Server {
