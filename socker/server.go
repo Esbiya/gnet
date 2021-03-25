@@ -135,34 +135,34 @@ func (u *Server) React(frame []byte, c gnet.Conn, out chan gnet.Out) {
 		loguru.Debug("receive message - length: %d, body: %s", msg.bodyLength, msg.BodyStringify())
 		_ = u.pool.Submit(func() {
 			u.router.Get(msg.Api)(msg.ToData(), reply)
-		LOOP:
-			select {
-			case _reply := <-reply:
-				msg.reset(_reply.Async, _reply.Body)
-				loguru.Debug("reply   message - length: %d, body: %s", msg.bodyLength, msg.BodyStringify())
-				if msg.async {
-					_ = c.AsyncWrite(msg.out())
-				} else {
-					out <- gnet.Out{
-						Body:   msg.out(),
-						Action: gnet.Action(_reply.Status),
-					}
-				}
-				switch _reply.Status {
-				case Continue:
-					goto LOOP
-				default:
-				}
-			case <-time.After(u.timeout):
-				msg.reset(false, map[string]interface{}{
-					"code": 500,
-					"msg":  "process message timeout! ",
-				})
+		})
+	LOOP:
+		select {
+		case _reply := <-reply:
+			msg.reset(_reply.Async, _reply.Body)
+			loguru.Debug("reply   message - length: %d, body: %s", msg.bodyLength, msg.BodyStringify())
+			if msg.async {
+				_ = c.AsyncWrite(msg.out())
+			} else {
 				out <- gnet.Out{
-					Body: msg.out(),
+					Body:   msg.out(),
+					Action: gnet.Action(_reply.Status),
 				}
 			}
-		})
+			switch _reply.Status {
+			case Continue:
+				goto LOOP
+			default:
+			}
+		case <-time.After(u.timeout):
+			msg.reset(false, map[string]interface{}{
+				"code": 500,
+				"msg":  "process message timeout! ",
+			})
+			out <- gnet.Out{
+				Body: msg.out(),
+			}
+		}
 	}
 }
 
